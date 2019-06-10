@@ -1,0 +1,1 @@
+console.log('此处的资源不会被打包，通过copy-webpack-plugin导入到dist目录中')

@@ -13,3 +13,10 @@
 
 ### 关于source map
 > 1. 推荐使用`cheap-module-eval-source-map`, cheap相对较快, eval不会额外生成map文件
+
+### 关于clean-webpack-plugin
+> 1. 用法改了，详见文档
+
+### webpack内置插件
+1. BannerPlugin 为js文件添加注释信息
+
