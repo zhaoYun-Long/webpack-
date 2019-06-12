@@ -4,3 +4,4 @@ function *aa() {
 }
 
 aa().next()
+import './api/test.css'

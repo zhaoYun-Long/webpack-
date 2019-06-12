@@ -2,6 +2,9 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+// 将css提取到独立文件中
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
 const webpack = require('webpack')
 
 module.exports = {
@@ -17,10 +20,14 @@ module.exports = {
   module: {
     rules: [
       {
+        // 如果用到了MiniCssExtractPlugin，则需要将style-loader替换为MiniCssExtractPlugin.loader
         test: /\.css$/,
         use: [
-          'style-loader',
-          'css-loader'
+          // 'style-loader',
+          MiniCssExtractPlugin.loader,
+          'css-loader',
+          // 添加私有前缀
+          'postcss-loader'
         ]
       },
       {
@@ -92,6 +99,9 @@ module.exports = {
     new CopyWebpackPlugin([
         { from: path.join(__dirname, '..', 'assets'), to: 'assets' }
     ]),
+    new MiniCssExtractPlugin({
+      filename: 'test.css'
+    }),
     new webpack.BannerPlugin('这是bannerPlugin'),
     // 使用内置模块ProvidePlugin为每一个模块注入jquery变量
     // new webpack.ProvidePlugin({
