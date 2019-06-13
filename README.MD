@@ -66,5 +66,26 @@
 - 开启css压缩(webpack5好像要集成此功能)
 > 使用`optimize-css-assets-webpack-plugin`插件压缩css，但是配置css压缩时会覆盖掉webpack默认的优化配置，导致js代码无法压缩，所以需要手动导入压缩插件`terser-webpack-plugin`,然后配置`optimization`项。
 
+3. js优化
+> - Code Spliting是webpack打包时用到的重要的优化特性之一，此特性能够把代码分离到不同的bundle中，然后可以按需加载或并行加载这些文件，代码分离可以用于获取更小的bundle，以及控制资源加载优先级，如果使用合理，会极大影响加载时间。有三种常见的优化方式
+3.1 入口分离，使用`entry`配置手动的分离代码
+如果入口chunks之间包含重复的模块，都会分别打包到对应的chunk文件中，且不够灵活
+3.2 防止重复：配合入口分离使用，使用`SplitChunksPlugin`去重和分离chunk。默认vendors.js文件为抽出的公共js
+```  optimization: {
+        splitChunks: {
+        chunks: 'all'
+        }
+    },
+```
+3.3 动态导入（懒加载）：通过模块的内联函数调用来分离代码
+> webpack支持`import()`语法需要`@babel/plugin-syntax-dynamic-import`插件，动态导入的最大好处是实现了懒加载，用到哪个模块吃才会加载哪个模块，可以提高SPA应用的首屏加载速度，Vue，React，Angular框架的路由懒加载原理一样
+> 用法： .babelrc文件中的plugins节点下添加`@babel/plugin-syntax-dynamic-import`
+如果浏览器缺少Promise环境，则需要引入以下包使支持Promise
+```
+import "core-js/modules/es6.promise";
+import "core-js/modules/es6.array.iterator";
+```
+    
+
 
 

@@ -8,6 +8,13 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const webpack = require('webpack')
 
 module.exports = {
+  optimization: {
+    // 抽取公共代码
+    // 'all'，分割所有公共模块
+    splitChunks: {
+      chunks: 'all'
+    }
+  },
   entry: {
     index: './src/index.js',
     demo: './src/demo.js'
@@ -87,7 +94,7 @@ module.exports = {
       // template: path.join(__dirname, '..', './src/index.html'),
       template: path.join(__dirname, '..', 'src/index.html'),
       // 指定js文件
-      chunks: ['index', 'demp']
+      chunks: ['index', 'demo']
     }),
     new HtmlWebpackPlugin({
       filename: 'demo.html',
