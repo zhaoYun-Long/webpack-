@@ -8,7 +8,6 @@ const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 module.exports = merge(baseConfig, {
   mode: 'production',
-  devtool: 'cheap-module-source-map',
   plugins: [
     new webpack.DefinePlugin({
       IS_DEV: 'false',

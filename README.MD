@@ -68,15 +68,35 @@
 
 3. js优化
 > - Code Spliting是webpack打包时用到的重要的优化特性之一，此特性能够把代码分离到不同的bundle中，然后可以按需加载或并行加载这些文件，代码分离可以用于获取更小的bundle，以及控制资源加载优先级，如果使用合理，会极大影响加载时间。有三种常见的优化方式
+>
 3.1 入口分离，使用`entry`配置手动的分离代码
 如果入口chunks之间包含重复的模块，都会分别打包到对应的chunk文件中，且不够灵活
-3.2 防止重复：配合入口分离使用，使用`SplitChunksPlugin`去重和分离chunk。默认vendors.js文件为抽出的公共js
-```  optimization: {
-        splitChunks: {
-        chunks: 'all'
-        }
-    },
+3.2 防止重复：，使用`SplitChunksPlugin`去重和分离chunk。默认vendors.js文件为抽出的公共js，如axios会抽出到一个单独的chunks文件中
+> 使用
 ```
+optimization: {
+    splitChunks: {
+    chunks: 'all'
+    }
+},
+```
+> `SplitChunksPlugin`中有一个`cacheGroups`缓存组配置
+> cacheGroups: {
+    // 此插件优先选择模块对应的规则组进行拆分
+    // 如果这两项规则都符合，则选择权重高的一组
+    vendors { // 自定义缓存组名, 通常用于第三方模块打包
+      test: /[\\/]node_modules[\\/]/,
+      priority: -10, // 权重
+      ...
+    },
+    default: {  // 默认缓存组名, 通常用于自己写的模块打包
+      priority: -20  // 权重
+      minChunks: 2,  // 该模块至少被引用两次
+      reuseExistingChunk: true, // 不会打包重用的代码
+      ...
+    }
+  }
+
 3.3 动态导入（懒加载）：通过模块的内联函数调用来分离代码
 > webpack支持`import()`语法需要`@babel/plugin-syntax-dynamic-import`插件，动态导入的最大好处是实现了懒加载，用到哪个模块吃才会加载哪个模块，可以提高SPA应用的首屏加载速度，Vue，React，Angular框架的路由懒加载原理一样
 > 用法： .babelrc文件中的plugins节点下添加`@babel/plugin-syntax-dynamic-import`
@@ -85,6 +105,30 @@
 import "core-js/modules/es6.promise";
 import "core-js/modules/es6.array.iterator";
 ```
+
+3.4 noParse
+> 功能： 阻止webpack解析一些没有其他依赖的库，提高打包速度
+> 用法： 
+    module: {
+      noParse: /jquery|bootstrap/
+    }
+
+3.5 ignorePlugin
+> 功能： 忽略第三方模块内部依赖的其他模块
+
+3.6 `DllPlugin`与`DllReferencePlugin`
+> 功能： 借助DllPlugin插件，实现将这些框架作为一个个的动态链接库，只构建一次，以后每次构件都只生成自己的业务代码，可以大大提高构建效率。主要思想在于，将一些不做修改的依赖文件，提前打包，这样我们开发代码发布的时候就不需要再对这部分代码进行打包，从而节省了打包时间。
+> `DllPlugin`,使用一个单独webpack配置创建一个dll文件，并且它还创建一个manifest.json,DllReferencePlugin使用该json文件来做映射依赖性。（这个文件会告诉我们哪些文件已经提取打包好了）
+> `DllReferencePlugin`,这个插件用于主webpack配置，他引用的dll需要预先构建依赖关系。
+> 用vue举例：
+  1. 准备一份将Vue打包成DLL的webpack配置文件,在build目录下新建一个文件，webpack.vue.js,
+    配置入口：将多个要做成dll的库全放进来。
+    配置出口：一定要设置library属性，将打包好的结果暴露在全局。
+    配置plugin：设置打包后dll文件名和manifest文件所在地
+  2. 在webpack.base.js中进行插件的配置
+    使用`DllReferencePlugin`指定manifest文件的位置即可
+  3. 使用`add-asset-html-plugin`将生成的vue_dll.js添加到目标html中
+
     
 
 
